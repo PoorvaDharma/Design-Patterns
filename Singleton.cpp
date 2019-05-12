@@ -11,7 +11,7 @@ namespace DesignPattern
 	private:
 
 		int data;
-		static std::mutex m;                                      //thread safe 
+		static std::mutex m;                                   //thread safe 
 
 		Singleton() noexcept
 			: data{ 0 } {
@@ -27,7 +27,7 @@ namespace DesignPattern
 		Singleton& operator=(const Singleton & S) = delete;
 		Singleton(const Singleton & S) = delete;                 // const in parameter applies to S, cannot change value of object using S
 
-	                                                                //  const after the function name applies to this pointer, should be used with member functions, can be called by const/nonconst objects
+													            //  const after the function name applies to this pointer, should be used with member functions, can be called by const/nonconst objects
 
 		Singleton& operator=(const Singleton && S) = delete;
 		Singleton(const Singleton && S) = delete;
@@ -37,10 +37,13 @@ namespace DesignPattern
 
 		static Singleton* getInstance()
 		{
-			std::lock_guard<std::mutex> guard(m);          //exceptionsafe 
-			if (!SingleInstance)
-				SingleInstance = new Singleton();
-
+			if (!SingleInstance)                              //Add double checks to avoid acquiring lock when the object is created
+			{
+				std::cout << "Instantion Reached \n";
+				std::lock_guard<std::mutex> guard(m);         //exceptionsafe 
+				if (!SingleInstance)
+					SingleInstance = new Singleton();
+			}
 			return SingleInstance;
 		}
 
@@ -90,11 +93,11 @@ int main()
 	
 	Singleton* s1 = Singleton::getInstance();
 	Singleton* s2 = Singleton::getInstance();
+
+	std::cout << s1->getdata() <<std::endl;
 	s1->setdata(100);
 	std::cout << s2->getdata()<<std::endl;
-
-
-
+	   
 	std::cout << "out main" << std::endl;
 	return 0;
 }
